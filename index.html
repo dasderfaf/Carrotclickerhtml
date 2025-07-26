@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Carrot Clicker</title>
+  <style>
+    body {
+      background: white;
+      text-align: center;
+      font-family: Comic Sans MS;
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      background: white;
+    }
+    #counter {
+      font-size: 24px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="counter">Clicks: 0</div>
+  <canvas id="gameCanvas" width="270" height="585"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const counter = document.getElementById("counter");
+
+    let clicks = 0;
+
+    const carrot = new Image();
+    carrot.src = "Clickable.png"; // make sure it's in same folder
+
+    const carrotX = canvas.width / 2 - 25;
+    const carrotY = canvas.height / 2 - 25;
+    const carrotSize = 50;
+
+    carrot.onload = () => {
+      ctx.drawImage(carrot, carrotX, carrotY, carrotSize, carrotSize);
+    };
+
+    function playSound() {
+      const sound = new Audio("minecraft_click.mp3"); // same folder
+      sound.play();
+    }
+
+    canvas.addEventListener("click", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (
+        mouseX > carrotX &&
+        mouseX < carrotX + carrotSize &&
+        mouseY > carrotY &&
+        mouseY < carrotY + carrotSize
+      ) {
+        clicks++;
+        counter.textContent = "Clicks: " + clicks;
+        playSound();
+      }
+    });
+  </script>
+</body>
+</html>
