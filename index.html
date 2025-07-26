@@ -4,30 +4,32 @@
   <title>Carrot Clicker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
-    body {
+    html, body {
+      margin: 0; padding: 0; height: 100%;
       background: white;
-      text-align: center;
       font-family: "Comic Sans MS", cursive, sans-serif;
-      margin: 0;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
     }
     #counter {
       font-size: 24px;
       margin: 10px;
+      flex-shrink: 0;
     }
     canvas {
-      background: white;
-      width: 90vw;  /* 90% of viewport width */
-      height: auto; /* auto height for aspect ratio */
-      max-height: 90vh; /* max 90% viewport height */
+      flex-grow: 1;
+      width: 100vw;
+      height: 100vh;
       display: block;
-      margin: 0 auto;
+      background: white;
     }
   </style>
 </head>
 <body>
   <div id="counter">Clicks: 0</div>
-  <canvas id="gameCanvas" width="270" height="585"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -39,35 +41,37 @@
     const carrot = new Image();
     carrot.src = "Clickable.png";
 
-    // Original canvas size ratio
-    const originalWidth = 270;
-    const originalHeight = 585;
+    // Base design size (same aspect ratio as your original)
+    const designWidth = 270;
+    const designHeight = 585;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      // Leave space for counter height (~40px), so canvas height is viewport minus counter
+      canvas.height = window.innerHeight - counter.offsetHeight;
+      draw();
+    }
 
     function draw() {
-      // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Calculate carrot size relative to canvas
-      const scaleX = canvas.width / originalWidth;
-      const scaleY = canvas.height / originalHeight;
+      // Calculate scale to keep aspect ratio based on width or height
+      const scaleX = canvas.width / designWidth;
+      const scaleY = canvas.height / designHeight;
+      const scale = Math.min(scaleX, scaleY);
 
-      const carrotSize = 50 * scaleX; // scale carrot size to canvas width
-      const carrotX = canvas.width / 2 - carrotSize / 2;
-      const carrotY = canvas.height / 2 - carrotSize / 2;
+      // Carrot size scaled
+      const carrotSize = 50 * scale;
+
+      // Center carrot
+      const carrotX = (canvas.width / 2) - (carrotSize / 2);
+      const carrotY = (canvas.height / 2) - (carrotSize / 2);
 
       ctx.drawImage(carrot, carrotX, carrotY, carrotSize, carrotSize);
     }
 
-    // Resize canvas to displayed size on window resize
-    function resizeCanvas() {
-      // Match canvas pixel size to CSS size for sharpness
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      draw();
-    }
-
     window.addEventListener("resize", resizeCanvas);
+
     carrot.onload = () => {
       resizeCanvas();
     };
@@ -82,10 +86,13 @@
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      // Carrot position and size as in draw()
-      const carrotSize = 50 * (canvas.width / originalWidth);
-      const carrotX = canvas.width / 2 - carrotSize / 2;
-      const carrotY = canvas.height / 2 - carrotSize / 2;
+      const scaleX = canvas.width / designWidth;
+      const scaleY = canvas.height / designHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      const carrotSize = 50 * scale;
+      const carrotX = (canvas.width / 2) - (carrotSize / 2);
+      const carrotY = (canvas.height / 2) - (carrotSize / 2);
 
       if (
         mouseX > carrotX &&
