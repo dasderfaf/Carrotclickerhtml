@@ -2,20 +2,26 @@
 <html>
 <head>
   <title>Carrot Clicker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <style>
     body {
       background: white;
       text-align: center;
-      font-family: Comic Sans MS;
+      font-family: "Comic Sans MS", cursive, sans-serif;
       margin: 0;
       overflow: hidden;
-    }
-    canvas {
-      background: white;
     }
     #counter {
       font-size: 24px;
       margin: 10px;
+    }
+    canvas {
+      background: white;
+      width: 90vw;  /* 90% of viewport width */
+      height: auto; /* auto height for aspect ratio */
+      max-height: 90vh; /* max 90% viewport height */
+      display: block;
+      margin: 0 auto;
     }
   </style>
 </head>
@@ -31,18 +37,43 @@
     let clicks = 0;
 
     const carrot = new Image();
-    carrot.src = "Clickable.png"; // make sure it's in same folder
+    carrot.src = "Clickable.png";
 
-    const carrotX = canvas.width / 2 - 25;
-    const carrotY = canvas.height / 2 - 25;
-    const carrotSize = 50;
+    // Original canvas size ratio
+    const originalWidth = 270;
+    const originalHeight = 585;
 
-    carrot.onload = () => {
+    function draw() {
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Calculate carrot size relative to canvas
+      const scaleX = canvas.width / originalWidth;
+      const scaleY = canvas.height / originalHeight;
+
+      const carrotSize = 50 * scaleX; // scale carrot size to canvas width
+      const carrotX = canvas.width / 2 - carrotSize / 2;
+      const carrotY = canvas.height / 2 - carrotSize / 2;
+
       ctx.drawImage(carrot, carrotX, carrotY, carrotSize, carrotSize);
+    }
+
+    // Resize canvas to displayed size on window resize
+    function resizeCanvas() {
+      // Match canvas pixel size to CSS size for sharpness
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      draw();
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    carrot.onload = () => {
+      resizeCanvas();
     };
 
     function playSound() {
-      const sound = new Audio("minecraft_click.mp3"); // same folder
+      const sound = new Audio("minecraft_click.mp3");
       sound.play();
     }
 
@@ -50,6 +81,11 @@
       const rect = canvas.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
+
+      // Carrot position and size as in draw()
+      const carrotSize = 50 * (canvas.width / originalWidth);
+      const carrotX = canvas.width / 2 - carrotSize / 2;
+      const carrotY = canvas.height / 2 - carrotSize / 2;
 
       if (
         mouseX > carrotX &&
